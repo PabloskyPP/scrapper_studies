@@ -1,0 +1,23 @@
+[
+  {
+    "name": "Ejemplo 1",
+    "url": "https://ejemplo1.com",
+    "keywords": ["educación", "investigación", "universidad"],
+    "search_areas": {
+      "titulo": "h1, h2",
+      "contenido": "article, main",
+      "enlaces": "a"
+    }
+  },
+  {
+    "name": "Ejemplo 2",
+    "url": "https://ejemplo2.com",
+    "keywords": ["ciencia", "tecnología"],
+    "search_areas": null
+  },
+  {
+    "name": "Ejemplo 3 - Búsqueda general",
+    "url": "https://ejemplo3.com",
+    "keywords": ["innovación", "desarrollo"]
+  }
+]

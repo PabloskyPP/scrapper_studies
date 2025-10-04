@@ -1,0 +1,54 @@
+name: Scraper Estudios
+
+on:
+  # Ejecutar martes y jueves a las 20:00 hora España
+  # En invierno (UTC+1): 19:00 UTC
+  # En verano (UTC+2): 18:00 UTC
+  schedule:
+    - cron: '0 19 * * 2,4'  # Ajustar según la temporada
+  
+  # Permitir ejecución manual desde GitHub
+  workflow_dispatch:
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repositorio
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Configurar Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.11'
+        cache: 'pip'
+    
+    - name: Instalar dependencias
+      run: |
+        pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Ejecutar scraper
+      env:
+        TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+      run: |
+        python src/main.py
+    
+    - name: Commit y push de cambios en Excel
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+        git add data/scraper_estudios.xlsx
+        git diff --quiet && git diff --staged --quiet || (git commit -m "📊 Actualización automática: $(date +'%Y-%m-%d %H:%M')" && git push)
+    
+    - name: Subir Excel como artefacto (backup)
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: scraper-results-${{ github.run_number }}
+        path: data/scraper_estudios.xlsx
+        retention-days: 30

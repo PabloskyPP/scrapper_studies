@@ -103,46 +103,67 @@ class ExcelHandler:
         Guarda los cambios en el archivo Excel.
         Crea el directorio si no existe.
         """
-        # Asegura que el directorio exista
+        # Asegura que el directorio exista antes de guardar
+        # exist_ok=True evita errores si el directorio ya existe
         os.makedirs(os.path.dirname(self.filepath), exist_ok=True)
         
-        # Guarda el archivo
+        # Guarda el workbook en el archivo especificado
         self.workbook.save(self.filepath)
         print(f"Excel guardado: {self.filepath}")
     
     def close(self):
         """
         Cierra el archivo Excel para liberar recursos.
+        Importante llamar a este método al finalizar para evitar
+        corrupción de archivos y liberar memoria.
         """
-        if self.workbook:  # Verifica que el workbook esté abierto
-            self.workbook.close()
+        # Verifica que el workbook esté abierto antes de cerrarlo
+        if self.workbook:
+            self.workbook.close()  # Cierra el workbook y libera recursos
 
 
 def update_excel_with_results(results):
     """
     Función auxiliar que encapsula todo el proceso de actualización del Excel.
+    Esta es la función principal que se debe usar desde otros módulos.
+    
     Args:
         results (list): Lista de diccionarios con los resultados a guardar.
+                       Cada diccionario representa una fila con sus columnas.
     """
-    handler = ExcelHandler()  # Crea una instancia del manejador
+    # Crea una instancia del manejador de Excel
+    handler = ExcelHandler()
+    
     try:
-        handler.load_or_create()  # Carga o crea el archivo
-        handler.append_results(results)  # Añade los resultados
-        handler.save()  # Guarda los cambios
+        # Carga el archivo existente o crea uno nuevo
+        handler.load_or_create()
+        
+        # Añade los resultados nuevos al Excel
+        handler.append_results(results)
+        
+        # Guarda los cambios en el archivo
+        handler.save()
+        
     finally:
-        handler.close()  # Asegura que el archivo se cierre aunque haya errores
+        # Asegura que el archivo se cierre correctamente
+        # El bloque finally se ejecuta siempre, incluso si hay errores
+        handler.close()
 
 
 if __name__ == "__main__":
-    # Ejemplo de uso
+    # Código de prueba que se ejecuta solo cuando este archivo
+    # se ejecuta directamente (no cuando se importa como módulo)
+    
+    # Crea datos de prueba en el formato esperado
     test_results = [ 
         {
-            'timestamp': '2025-01-15 20:00:00',
-            'url': 'https://ejemplo.com',
-            'name': 'Página Test',
-            'keyword1': 5,
-            'keyword2': 3
+            'timestamp': '2025-01-15 20:00:00',  # Fecha y hora de scraping
+            'url': 'https://ejemplo.com',  # URL scrapeada
+            'name': 'Página Test',  # Nombre descriptivo
+            'keyword1': 5,  # Conteo de primera palabra clave
+            'keyword2': 3  # Conteo de segunda palabra clave
         }
     ]
     
+    # Ejecuta la función de actualización con los datos de prueba
     update_excel_with_results(test_results)

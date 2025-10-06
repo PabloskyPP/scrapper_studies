@@ -1,0 +1,40 @@
+[
+  {
+    "name": "UVigoProfesor",
+    "url": "https://secretaria.uvigo.gal/uv/web/convocatoria/public/index",
+    "type": "date_check",
+    "selectors": {
+      "form_group": "div.form-group",
+      "option": "option[value='16']",
+      "rows": "div.row.uvigo-row-nopadding",
+      "plazo": "div.uvigo-card-summary strong:contains('Plazo:')"
+    }
+  },
+  {
+    "name": "USCEmprego",
+    "url": "https://www.usc.gal/gl/emprego",
+    "type": "keyword_check",
+    "selectors": {
+      "container": "div#NHrsmAWmGreTiSMyIMnwjg-OkgfJwm",
+      "jobs": "div.ml-specs.is-job",
+      "title": "h2.at-title a"
+    },
+    "keywords": ["psicolog"]
+  },
+  {
+    "name": "Ejemplo de Conteo en Áreas Específicas",
+    "url": "https://ejemplo.com/ofertas",
+    "keywords": ["python", "javascript", "react", "django"],
+    "search_areas": {
+      "titulo": "h1, h2",
+      "descripcion": "article, .job-description",
+      "requisitos": ".requirements, .skills"
+    }
+  },
+  {
+    "name": "Ejemplo de Conteo en Toda la Página",
+    "url": "https://ejemplo.com/noticias",
+    "keywords": ["investigación", "universidad", "doctorado", "beca"],
+    "search_areas": null
+  }
+]

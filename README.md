@@ -17,7 +17,7 @@ Scraper automatizado que extrae frecuencia de palabras clave de páginas web y a
 
 ```bash
 git clone https://github.com/tu-usuario/scraper-estudios.git
-cd scraper-estudios
+cd scraper-estudios 
 ```
 
 ### 2. Instalar dependencias

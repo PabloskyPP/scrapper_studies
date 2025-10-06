@@ -1,23 +1,24 @@
 [
   {
-    "name": "Ejemplo 1",
-    "url": "https://ejemplo1.com",
-    "keywords": ["educación", "investigación", "universidad"],
-    "search_areas": {
-      "titulo": "h1, h2",
-      "contenido": "article, main",
-      "enlaces": "a"
+    "name": "UVigoProfesor",
+    "url": "https://secretaria.uvigo.gal/uv/web/convocatoria/public/index",
+    "type": "date_check",
+    "selectors": {
+      "form_group": "div.form-group",
+      "option": "option[value='16']",
+      "rows": "div.row.uvigo-row-nopadding",
+      "plazo": "div.uvigo-card-summary strong:contains('Plazo:')"
     }
   },
   {
-    "name": "Ejemplo 2",
-    "url": "https://ejemplo2.com",
-    "keywords": ["ciencia", "tecnología"],
-    "search_areas": null
-  },
-  {
-    "name": "Ejemplo 3 - Búsqueda general",
-    "url": "https://ejemplo3.com",
-    "keywords": ["innovación", "desarrollo"]
+    "name": "USCEmprego",
+    "url": "https://www.usc.gal/gl/emprego",
+    "type": "keyword_check",
+    "selectors": {
+      "container": "div#NHrsmAWmGreTiSMyIMnwjg-OkgfJwm",
+      "jobs": "div.ml-specs.is-job",
+      "title": "h2.at-title a"
+    },
+    "keywords": ["psicolog"]
   }
 ]

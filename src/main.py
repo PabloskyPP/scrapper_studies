@@ -39,7 +39,7 @@ def main():
         print("=" * 50)
         
     except Exception as e:
-        error_msg = str(e)
+        error_msg = str(e) 
         print(f"\n❌ ERROR: {error_msg}")
         
         # Enviar notificación de error

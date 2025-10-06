@@ -11,7 +11,7 @@ TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
 TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
 
 # Rutas de archivos
-EXCEL_FILE = 'data/scraper_estudios.xlsx'
+EXCEL_FILE = 'data/scraper_estudios.xlsx' 
 URLS_CONFIG = 'data/urls_config.json'
 
 # Configuración del scraper

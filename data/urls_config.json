@@ -7,10 +7,7 @@
       "form_group": "div.form-group",
       "option": "option[value='16']",
       "rows": "div.row.uvigo-row-nopadding",
-      "card_container": "div.col-sm-12",
-      "card_box": "div.uvigo-card-box",
-      "card_summary": "div.uvigo-card-summary",
-      "plazo": "strong:contains('Plazo:')"
+      "plazo": "div.uvigo-card-summary strong:contains('Plazo:')"
     }
   },
   {

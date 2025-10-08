@@ -21,6 +21,8 @@ class ExcelHandler:
         self.filepath = filepath  # Almacena la ruta del archivo Excel
         self.workbook = None     # Referencia al libro de Excel (se inicializa en None)
         self.sheet = None        # Referencia a la hoja activa (se inicializa en None)
+        # Headers base que siempre estarán presentes en el Excel
+        self.base_headers = ['Date', 'UVigoProfesor', 'USCEmprego']
         
     def load_or_create(self):
         """
@@ -38,65 +40,122 @@ class ExcelHandler:
             self.sheet.title = "Resultados Scraper"  # Establece el nombre de la hoja
             print(f"Nuevo Excel creado: {self.filepath}")
     
-    def add_headers_if_needed(self, headers):
+    def _get_current_headers(self):
         """
-        Añade encabezados al Excel si está vacío.
+        Obtiene los headers actuales del Excel desde la primera fila.
+        
+        Returns:
+            list: Lista de headers actuales o lista vacía si no hay.
+        """
+        headers = []
+        if self.sheet.max_row >= 1:  # Si hay al menos una fila
+            for col in range(1, self.sheet.max_column + 1):
+                header = self.sheet.cell(1, col).value
+                if header:  # Solo añade headers no vacíos
+                    headers.append(header)
+        return headers
+    
+    def setup_headers(self, additional_names=None):
+        """
+        Configura los headers del Excel con la estructura requerida.
+        Estructura: Date | UVigoProfesor | USCEmprego | [otros nombres de config]
+        
         Args:
-            headers (list): Lista de nombres de columnas a añadir.
+            additional_names (list): Nombres adicionales de sitios web desde urls_config.json
         """
-        # Verifica si la primera fila está vacía
-        if self.sheet.max_row == 1 and self.sheet.cell(1, 1).value is None:
-            # Añade cada encabezado en su respectiva columna
-            for col, header in enumerate(headers, start=1):
+        current_headers = self._get_current_headers()
+        
+        # Si no hay headers, crear la estructura completa
+        if not current_headers:
+            # Comenzar con los headers base
+            all_headers = self.base_headers.copy()
+            
+            # Añadir nombres adicionales de sitios web (evitando duplicados)
+            if additional_names:
+                for name in additional_names:
+                    if name not in all_headers:
+                        all_headers.append(name)
+            
+            # Escribir todos los headers en la primera fila
+            for col, header in enumerate(all_headers, start=1):
                 self.sheet.cell(1, col, header)
-            print("Encabezados añadidos")
+            
+            print(f"Headers configurados: {all_headers}")
+            
+        else:
+            # Si ya hay headers, verificar si necesitamos añadir nuevos
+            if additional_names:
+                next_col = len(current_headers) + 1
+                for name in additional_names:
+                    if name not in current_headers:
+                        self.sheet.cell(1, next_col, name)
+                        current_headers.append(name)
+                        next_col += 1
+                        print(f"Nuevo header añadido: {name}")
+    
+    def update_single_row(self, results):
+        """
+        Actualiza la única fila de datos (fila 2) con los nuevos resultados.
+        Reemplaza completamente los datos anteriores.
+        
+        Args:
+            results (dict): Diccionario con los resultados del scraping.
+                          Debe incluir 'date' y los valores para cada sitio web.
+        """
+        if not results:
+            print("No hay resultados para actualizar")
+            return
+        
+        # Obtener headers actuales
+        current_headers = self._get_current_headers()
+        
+        if not current_headers:
+            print("Error: No hay headers configurados")
+            return
+        
+        # Limpiar la fila 2 completamente
+        for col in range(1, len(current_headers) + 1):
+            self.sheet.cell(2, col, "")
+        
+        # Llenar la fila 2 con los nuevos datos
+        for col, header in enumerate(current_headers, start=1):
+            if header == 'Date':
+                # Para la columna Date, usar el timestamp del resultado
+                value = results.get('date', '')
+            else:
+                # Para las demás columnas, usar el valor correspondiente al nombre del sitio
+                value = results.get(header, 'NO')  # Default 'NO' si no se encuentra
+            
+            self.sheet.cell(2, col, value)
+        
+        print(f"Fila de datos actualizada con fecha: {results.get('date', 'N/A')}")
     
     def append_results(self, results):
         """
-        Añade nuevas filas con los resultados al Excel.
+        Procesa los resultados del scraping y actualiza el Excel.
+        En lugar de añadir filas, actualiza la estructura y la única fila de datos.
         
         Args:
-            results (list): Lista de diccionarios con los datos a añadir.
-                          Cada diccionario representa una fila.
+            results (list): Lista de diccionarios con los datos del scraping.
+                          Se espera solo un diccionario con todos los resultados.
         """
-        if not results:  # Verifica si hay resultados para añadir
+        if not results:  # Verifica si hay resultados para procesar
             print("No hay resultados para añadir")
             return
         
-        # Recopila todas las claves únicas de todos los resultados para usar como columnas
-        all_keys = set()
-        for result in results:
-            all_keys.update(result.keys())  # Añade todas las claves al conjunto
+        # Tomar el primer (y único) resultado
+        result = results[0] if isinstance(results, list) else results
         
-        headers = sorted(list(all_keys))  # Convierte a lista y ordena alfabéticamente
+        # Extraer nombres de sitios web del resultado (excluyendo 'date')
+        site_names = [key for key in result.keys() if key != 'date']
         
-        # Asegura que el Excel tenga los encabezados necesarios
-        self.add_headers_if_needed(headers)
+        # Configurar headers (incluyendo cualquier sitio nuevo)
+        self.setup_headers(additional_names=site_names)
         
-        # Obtiene los encabezados actuales del Excel
-        current_headers = []
-        for col in range(1, self.sheet.max_column + 1):
-            header = self.sheet.cell(1, col).value
-            if header:  # Solo añade headers no vacíos
-                current_headers.append(header)
+        # Actualizar la única fila de datos
+        self.update_single_row(result)
         
-        # Añade nuevos encabezados si hay columnas que no existían
-        for header in headers:
-            if header not in current_headers:  # Si es un nuevo header
-                # Añade al final de las columnas existentes
-                self.sheet.cell(1, len(current_headers) + 1, header)
-                current_headers.append(header)
-        
-        # Añade los datos de cada resultado en nuevas filas
-        for result in results:
-            row_num = self.sheet.max_row + 1  # Obtiene el número de la siguiente fila
-            for col, header in enumerate(current_headers, start=1):
-                # Obtiene el valor del resultado o '' si no existe
-                value = result.get(header, '')
-                # Escribe el valor en la celda correspondiente
-                self.sheet.cell(row_num, col, value)
-        
-        print(f"{len(results)} filas añadidas al Excel")
+        print("Excel actualizado con nueva estructura y datos")
     
     def save(self):
         """
@@ -128,8 +187,8 @@ def update_excel_with_results(results):
     Esta es la función principal que se debe usar desde otros módulos.
     
     Args:
-        results (list): Lista de diccionarios con los resultados a guardar.
-                       Cada diccionario representa una fila con sus columnas.
+        results (list): Lista con un diccionario que contiene los resultados del scraping.
+                       El diccionario debe incluir 'date' y los resultados de cada sitio web.
     """
     # Crea una instancia del manejador de Excel
     handler = ExcelHandler()
@@ -138,7 +197,7 @@ def update_excel_with_results(results):
         # Carga el archivo existente o crea uno nuevo
         handler.load_or_create()
         
-        # Añade los resultados nuevos al Excel
+        # Procesa y actualiza los resultados (estructura + datos)
         handler.append_results(results)
         
         # Guarda los cambios en el archivo
@@ -154,14 +213,12 @@ if __name__ == "__main__":
     # Código de prueba que se ejecuta solo cuando este archivo
     # se ejecuta directamente (no cuando se importa como módulo)
     
-    # Crea datos de prueba en el formato esperado
+    # Crea datos de prueba en el formato esperado por el nuevo sistema
     test_results = [ 
         {
-            'timestamp': '2025-01-15 20:00:00',  # Fecha y hora de scraping
-            'url': 'https://ejemplo.com',  # URL scrapeada
-            'name': 'Página Test',  # Nombre descriptivo
-            'keyword1': 5,  # Conteo de primera palabra clave
-            'keyword2': 3  # Conteo de segunda palabra clave
+            'date': '2025-10-08',  # Fecha de ejecución
+            'UVigoProfesor': 'YES',  # Resultado del scraping de UVigo
+            'USCEmprego': 'NO'  # Resultado del scraping de USC
         }
     ]
     

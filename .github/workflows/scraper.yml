@@ -1,11 +1,11 @@
 name: Scraper Estudios
 
 on:
-  # Ejecutar martes y jueves a las 20:00 hora España
-  # En invierno (UTC+1): 19:00 UTC
-  # En verano (UTC+2): 18:00 UTC
+  # Ejecutar todos los miércoles a las 12:00 hora España
+  # En invierno (UTC+1): 11:00 UTC
+  # En verano (UTC+2): 10:00 UTC
   schedule:
-    - cron: '0 19 * * 2,4'  # Ajustar según la temporada
+    - cron: '0 11 * * 3'  # Miércoles a las 11:00 UTC (12:00 hora España en invierno)
   
   # Permitir ejecución manual desde GitHub
   workflow_dispatch:

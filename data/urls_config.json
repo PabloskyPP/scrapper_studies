@@ -23,5 +23,14 @@
       "title": "h2.at-title a"
     },
     "keywords": ["psicolog"]
+  },
+  {
+    "name": "USCConvocatorias",
+    "url": "https://www.usc.gal/gl/investigar-na-usc/convocatorias",
+    "keywords": ["investigación", "proxecto", "proxectos", "persoal", "contratación", "colaborar"],
+    "search_areas": {
+      "titulo": "article.ml-notice h3",
+      "contenido": "article.ml-notice"
+    }
   }
 ]
